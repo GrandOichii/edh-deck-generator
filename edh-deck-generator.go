@@ -58,7 +58,7 @@ type deckGenFlag struct {
 var deckGenFlags = []*deckGenFlag{
 	{
 		Name:    mtgsdk.DeckGenBoardWipeCountKey,
-		Usage:   "(optional) The preffered amount of board wipes in the deck",
+		Usage:   "(optional) The preferred amount of board wipes in the deck",
 		Default: mtgsdk.BoardWipeCountDefault,
 	},
 	{
@@ -104,6 +104,7 @@ func init() {
 }
 
 func main() {
+	// mtgsdk.UpdateBulkData()
 	flag.Parse()
 	if cardName == "" {
 		flag.PrintDefaults()
@@ -116,7 +117,7 @@ func main() {
 	if !logF {
 		log.SetOutput(ioutil.Discard)
 	}
-	cards, err := mtgsdk.GetCards(map[string]string{mtgsdk.CardNameKey: cardName}, forceOffline)
+	cards, err := mtgsdk.GetCards(map[string]string{mtgsdk.CardNameKey: cardName})
 	if len(cards) == 0 {
 		fmt.Printf("Couldn't find card with name: %s, check your internat connection", cardName)
 		return
@@ -133,11 +134,11 @@ func main() {
 		}
 	}
 	fmt.Printf("Generating deck for %s...\n", cards[ci].Name)
-	params := map[string]interface{}{}
+	params := map[string]int{}
 	for _, dgflag := range deckGenFlags {
 		params[dgflag.Name] = dgflag.Value
 	}
-	deck, err := cards[ci].GenerateCommanderDeck(params, forceOffline)
+	deck, err := cards[ci].GenerateCommanderDeck(params)
 	checkErr(err)
 	fmt.Println("Generated!")
 	err = deck.Save(outPath)
